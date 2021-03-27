@@ -1,122 +1,77 @@
-// // Require Dependencies
-// const express = require("express");
-// const fs = require("fs");
-// const path = require("path");
-
-// // Initialize express app
-// const app = express();
-// const PORT = process.env.PORT || 3001;
-
-// // Setup data parsing
-// app.use(express.urlencoded({ extended: true }));
-// app.use(express.json());
-// app.use(express.static(__dirname));
-
-// //Require routes file
-// require("./routes/routes")(app);
-
-// // Setup listener
-// app.listen(PORT, function () {
-//   console.log("Application listening on PORT: " + PORT);
-// });
-
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
+const uuidv1 = require("uuidv1");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("public"));
 
-// API rountes
-// GET - read the db.json file and return all saved notes as JSON
 app.get("/api/notes", function (req, res) {
+  fs.readFile("./db/db.json", "utf8", function (err, data) {
+    if (err) throw err;
 
-    fs.readFile("./db/db.json", "utf8", function (err, data) {
-        if (err) throw err;
-
-        let savedNotes = JSON.parse(data);
-        res.json(savedNotes);
-    });
-})
-
-// POST - receive a new note to save on the request body, add it to the db.json file, and then return the new note to the client.
-app.post("/api/notes", function (req, res) {
-
-    fs.readFile("./db/db.json", "utf8", function (err, data) {
-        if (err) throw err;
-
-        let savedNotes = JSON.parse(data);
-        let newNoteData = req.body;
-
-        // console.log(newNoteData);
-
-        let makeId = uuidv1();
-
-        newNoteData.id = makeId;
-
-        // console.log(makeId);
-
-        savedNotes.push(newNoteData);
-
-        let updateNote = JSON.stringify(savedNotes);
-
-        fs.writeFile("./db/db.json", updateNote, (err) => {
-            if (err) throw err;
-
-            console.log("Note added");
-            res.json(savedNotes);
-        })
-    })
+    let savedNotes = JSON.parse(data);
+    res.json(savedNotes);
+  });
 });
 
-// DELETE - receive a query parameter containing ID of a note to delete.
+app.post("/api/notes", function (req, res) {
+  fs.readFile("./db/db.json", "utf8", function (err, data) {
+    if (err) throw err;
+
+    let savedNotes = JSON.parse(data);
+    let newNoteData = req.body;
+
+    let makeId = uuidv1();
+
+    newNoteData.id = makeId;
+
+    savedNotes.push(newNoteData);
+
+    let updateNote = JSON.stringify(savedNotes);
+
+    fs.writeFile("./db/db.json", updateNote, (err) => {
+      if (err) throw err;
+
+      console.log("Note added");
+      res.json(savedNotes);
+    });
+  });
+});
+
 app.delete("/api/notes/:id", function (req, res) {
+  const noteId = req.params.id;
 
-    // Access :id from `req.params.id`
-    const noteId = req.params.id;
+  fs.readFile("./db/db.json", "utf8", function (err, data) {
+    if (err) throw err;
 
-    // console.log(noteId);
+    const savedNotes = JSON.parse(data);
 
-    // Use the fs module to read the file
-    fs.readFile("./db/db.json", "utf8", function (err, data) {
-        if (err) throw err
+    const newNoteArray = savedNotes.filter((note) => note.id !== noteId);
 
-        // THEN parse the file contects with JSON.parse() to get the real data.
-        const savedNotes = JSON.parse(data);
-        // console.log(savedNotes);
+    const updateNewNote = JSON.stringify(newNoteArray);
 
-        // Use the array.filter() method to filter out the matching element
-        const newNoteArray = savedNotes.filter(note => note.id !== noteId)
-        // console.log(newNoteArray);
+    fs.writeFile("./db/db.json", updateNewNote, (err) => {
+      if (err) throw err;
+      res.json(savedNotes);
+    });
 
-        const updateNewNote = JSON.stringify(newNoteArray);
-
-        // write updated note array back to db after delete
-        fs.writeFile("./db/db.json", updateNewNote, (err) => {
-            if (err) throw err;
-            res.json(savedNotes);
-        })
-
-        console.log("Note deleted");
-    })
-})
+    console.log("Note deleted");
+  });
+});
 
 app.get("/notes", function (req, res) {
-
-    // return the contents of the notes.html
-    res.sendFile(path.join(__dirname, ".public/notes.html"))
-})
+  res.sendFile(path.join(__dirname, "public/notes.html"));
+});
 
 app.get("*", function (req, res) {
-
-    // return the contents of the index.html
-    res.sendFile(path.join(__dirname, ".public/index.html"));
-})
+  res.sendFile(path.join(__dirname, "public/index.html"));
+});
 
 app.listen(PORT, function () {
-    console.log("App listening to PORT " + PORT)
+  console.log("App listening to PORT " + PORT);
 });
