@@ -19,8 +19,8 @@ deployed on Heroku -
 
 ## Screenshots
 
-[SCREENSHOT](images/addingnotes.png)
-[SCREENSHOT](images/index.png)
-[SCREENSHOT](images/notes.png)
+![SCREENSHOT](images/addingnotes.png)
+![SCREENSHOT](images/index.png)
+![SCREENSHOT](images/notes.png)
 
 
