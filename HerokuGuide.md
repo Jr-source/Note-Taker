@@ -42,7 +42,7 @@ If you haven't run into any errors at this point, you should be able to proceed 
 3. Run the command `heroku create`.
    * This will create an app instance on the Heroku server and will add heroku as a remote for your local git repository.
 
-4. Run `git remote –v` again.
+4. Run `heroku create` again.
    * This isn't necessary, but helps to confirm that Heroku is now in your list of remotes. This time you should see the `heroku` remote.
 
 5. Ensure that your `package.json` file is set up correctly. It must have a `start` script and all the project's dependencies defined. E.g.:
